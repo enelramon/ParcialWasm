@@ -1,5 +1,6 @@
 ﻿@page "/counter"
 @rendermode InteractiveWebAssembly
+@inject HttpClient httpClient
 
 <PageTitle>Counter</PageTitle>
 
@@ -8,12 +9,66 @@
 <p role="status">Current count: @currentCount</p>
 
 <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<button class="btn btn-primary" @onclick="GetAllVentasAsync">Ventas</button>
+
+<p>Error:@ErrorMessage</p>
+
+@if (ventas != null && ventas.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Venta ID</th>
+                <th>Cliente</th> 
+                <th>Amount</th> 
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var venta in ventas)
+            {
+                <tr>
+                    <td>@venta.VentaId</td>
+                    <td>@venta.Cliente</td>
+                    <td>@venta.Monto</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No ventas available.</p>
+}
 
 @code {
     private int currentCount = 0;
+    private List<VentaDto>? ventas;
+    public string ErrorMessage { get; set; }
+
 
     private void IncrementCount()
     {
         currentCount++;
+    }
+
+    public async Task GetAllVentasAsync()
+    {
+        try
+        {
+            ventas = await httpClient.GetFromJsonAsync<List<VentaDto>>("api/Ventas");
+        }
+        catch (HttpRequestException e)
+        {
+            ErrorMessage= $"Request exception: {e.Message}";
+        }
+    }
+
+    public class VentaDto
+    {
+        public int VentaId { get; set; }
+
+        public string Cliente { get; set; }
+
+        public decimal Monto { get; set; }
     }
 }

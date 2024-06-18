@@ -1,5 +1,6 @@
 
 using Articulo.Api.DAL;
+using Articulo.Api.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace Articulo.Api
@@ -19,6 +20,7 @@ namespace Articulo.Api
 			var ConStr = builder.Configuration.GetConnectionString("ConStr");
 			builder.Services.AddDbContextFactory<Contexto>(o => o.UseSqlite(ConStr));
 
+			builder.Services.AddScoped<VentasService>();
 			builder.Services.AddCors(options =>
 			{
 				options.AddPolicy("AllowAnyOrigin",
